@@ -1,0 +1,92 @@
+{
+  "generatedAt": "2026-05-28T08:00:00.000Z",
+  "pricing": {
+    "lastVerified": "2026-05-27",
+    "links": [
+      "https://developers.openai.com/api/docs/pricing",
+      "https://help.openai.com/en/articles/20001106",
+      "https://platform.claude.com/docs/en/about-claude/pricing"
+    ],
+    "sourceNote": "Sample anonymized data for repository sharing. Run npm run ingest to generate local real aggregates."
+  },
+  "sessions": [
+    {
+      "cacheCreationInputTokens": 120000,
+      "cachedInputTokens": 380000,
+      "costUsd": 1.42,
+      "date": "2026-05-21",
+      "inputTokens": 180000,
+      "interactions": 18,
+      "model": "claude-sonnet-4-6",
+      "outputTokens": 42000,
+      "provider": "Claude",
+      "totalTokens": 722000,
+      "workspace": "example/knowledge-vault"
+    },
+    {
+      "cacheCreationInputTokens": 0,
+      "cachedInputTokens": 210000,
+      "costUsd": 2.15,
+      "date": "2026-05-22",
+      "inputTokens": 340000,
+      "interactions": 14,
+      "model": "gpt-5.3-codex",
+      "outputTokens": 62000,
+      "provider": "Codex",
+      "totalTokens": 612000,
+      "workspace": "example/product-app"
+    },
+    {
+      "cacheCreationInputTokens": 80000,
+      "cachedInputTokens": 180000,
+      "costUsd": 3.32,
+      "date": "2026-05-23",
+      "inputTokens": 220000,
+      "interactions": 9,
+      "model": "claude-opus-4-7",
+      "outputTokens": 58000,
+      "provider": "Claude",
+      "totalTokens": 538000,
+      "workspace": "example/architecture-review"
+    },
+    {
+      "cacheCreationInputTokens": 0,
+      "cachedInputTokens": 440000,
+      "costUsd": 4.85,
+      "date": "2026-05-24",
+      "inputTokens": 580000,
+      "interactions": 22,
+      "model": "gpt-5.5",
+      "outputTokens": 88000,
+      "provider": "Codex",
+      "reasoningOutputTokens": 18000,
+      "totalTokens": 1108000,
+      "workspace": "example/multi-file-refactor"
+    },
+    {
+      "cacheCreationInputTokens": 40000,
+      "cachedInputTokens": 120000,
+      "costUsd": 0.24,
+      "date": "2026-05-25",
+      "inputTokens": 90000,
+      "interactions": 26,
+      "model": "claude-haiku-4-5",
+      "outputTokens": 22000,
+      "provider": "Claude",
+      "totalTokens": 272000,
+      "workspace": "example/task-triage"
+    }
+  ],
+  "sources": [
+    {
+      "available": false,
+      "label": "Claude local logs",
+      "path": "~/.claude/projects"
+    },
+    {
+      "available": false,
+      "label": "Codex local logs",
+      "path": "~/.codex/sessions"
+    }
+  ]
+}

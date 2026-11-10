@@ -1,0 +1,14 @@
+{
+  "vaultPath": "/Users/you/Documents/Obsidian Vault",
+  "aiContextDir": "AI Context",
+  "providers": ["claude", "codex"],
+  "syncTargets": [
+    "./CLAUDE.md",
+    "/absolute/path/to/another-repo/AGENTS.md"
+  ],
+  "excludeAreas": ["credentials"],
+  "finance": {
+    "currency": "EUR",
+    "digestEmail": ""
+  }
+}

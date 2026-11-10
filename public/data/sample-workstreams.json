@@ -1,0 +1,14 @@
+{
+  "workstreams": [
+    {
+      "name": "Sample workstream",
+      "source": "Sample data",
+      "summary": "Replace this with your own current work by creating public/data/workstreams.json.",
+      "items": [
+        { "label": "Review the README and rename the dashboard for your own usage", "priority": "normal", "status": "next" },
+        { "label": "Run npm run ingest to load your local Claude and Codex logs", "priority": "high", "status": "next" },
+        { "label": "Drop a finance CSV into npm run ingest:finance", "priority": "normal", "status": "open" }
+      ]
+    }
+  ]
+}

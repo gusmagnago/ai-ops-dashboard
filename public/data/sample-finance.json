@@ -1,0 +1,71 @@
+{
+  "generatedAt": "2026-01-01T00:00:00.000Z",
+  "entries": [
+    {
+      "actualEur": 9,
+      "budgetEur": 30,
+      "category": "infrastructure",
+      "invoiceStatus": "baseline",
+      "month": "2026-01",
+      "nextAction": "Review next monthly invoice and decide tier.",
+      "service": "Hosting platform",
+      "source": "Sample data",
+      "volatility": "fixed"
+    },
+    {
+      "actualEur": 25,
+      "budgetEur": 25,
+      "category": "infrastructure",
+      "invoiceStatus": "baseline",
+      "month": "2026-01",
+      "nextAction": "Stay on lowest tier while traffic is low.",
+      "service": "Database",
+      "source": "Sample data",
+      "volatility": "medium"
+    },
+    {
+      "actualEur": 20,
+      "budgetEur": 30,
+      "category": "infrastructure",
+      "invoiceStatus": "baseline",
+      "month": "2026-01",
+      "nextAction": "Confirm Pro tier is justified by current usage.",
+      "service": "CDN / edge",
+      "source": "Sample data",
+      "volatility": "fixed"
+    },
+    {
+      "actualEur": 50,
+      "budgetEur": 50,
+      "category": "tooling",
+      "invoiceStatus": "baseline",
+      "month": "2026-01",
+      "nextAction": "Audit seats; remove inactive users.",
+      "service": "Workspace suite",
+      "source": "Sample data",
+      "volatility": "fixed"
+    },
+    {
+      "actualEur": 0,
+      "budgetEur": 80,
+      "category": "variable",
+      "invoiceStatus": "missing",
+      "month": "2026-01",
+      "nextAction": "Set spend alert; track per-project usage.",
+      "service": "AI provider API",
+      "source": "Sample data",
+      "volatility": "high"
+    },
+    {
+      "actualEur": 0,
+      "budgetEur": 40,
+      "category": "variable",
+      "invoiceStatus": "missing",
+      "month": "2026-01",
+      "nextAction": "Connect usage triggers to billing notifications.",
+      "service": "Messaging API",
+      "source": "Sample data",
+      "volatility": "high"
+    }
+  ]
+}

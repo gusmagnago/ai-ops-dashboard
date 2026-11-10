@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env.local
+.env
+public/data/usage.json
+public/data/finance.json
+public/data/invoices.json
+ai-ops.config.json
+*.tsbuildinfo
