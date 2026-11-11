@@ -30,7 +30,7 @@ npm run dev         # http://localhost:5197
 
 `npm run setup` is optional but recommended: it walks you through which assistants you use, your notes-vault path, and finance preferences, writes a gitignored `ai-ops.config.json`, and offers to run the first ingest. Prefer to skip it? Run `npm run ingest && npm run dev` directly.
 
-No local Claude or Codex logs yet? The dashboard boots with sample data so you can explore the UI right away.
+No local Claude or Codex logs yet? The dashboard boots with sample data so you can explore the UI right away: a year of synthetic, anonymized usage, shifted at load time so it ends today. Regenerate it with `npm run sample:generate`.
 
 ## Shared context sync
 

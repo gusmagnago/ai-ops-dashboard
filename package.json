@@ -33,6 +33,7 @@
     "ingest:finance": "node scripts/ingest-finance.mjs",
     "lint": "eslint . --ext ts,tsx --max-warnings 0",
     "preview": "vite preview --host 0.0.0.0",
+    "sample:generate": "node scripts/generate-sample-usage.mjs",
     "setup": "node scripts/setup.mjs",
     "sync": "node scripts/sync-context.mjs",
     "sync:check": "node scripts/sync-context.mjs --check",
