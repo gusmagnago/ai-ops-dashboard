@@ -8,6 +8,10 @@ A local console for anyone who runs **Claude Code** and **Codex** side by side. 
 
 No backend. No telemetry. No data leaves your machine.
 
+**[Live demo](https://ai-ops-dashboard-nine.vercel.app)** (sample data)
+
+![AI Ops Dashboard, Daily view with sample data](docs/screenshot.png)
+
 ## Features
 
 - **Usage at a glance.** Tokens, turns, sessions, and cost-per-day grouped by provider, model, workspace, and category.
