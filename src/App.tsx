@@ -83,6 +83,7 @@ import {
   loadUsagePayload,
   loadWorkstreams,
   prebuiltPlans,
+  isSamplePayload,
   refreshUsagePayload,
   workstreams as defaultWorkstreams,
 } from './data';
@@ -421,6 +422,7 @@ const App = () => {
         activeModel={filters.model}
         activeProvider={filters.provider}
         onClose={() => setSettingsOpen(false)}
+        invoiceCount={invoicesPayload.invoices.length}
         onSettingsChange={updateSettings}
         open={settingsOpen}
         payload={payload}
@@ -493,6 +495,7 @@ const Header = ({
   const freshness = describeFreshness(payload.generatedAt);
   const codexPrimary = payload.limits?.codex?.windows.find((window) => window.id === 'primary');
   const codexWeekly = payload.limits?.codex?.windows.find((window) => window.id === 'secondary');
+  const isSample = isSamplePayload(payload);
 
   return (
     <header className="top-header">
@@ -500,13 +503,22 @@ const Header = ({
         <div className="header-lead-top">
           <span className="eyebrow">AI Ops · Daily</span>
           <div className="header-status">
-            <span
-              className="live-badge"
-              title="Auto-refreshes from your local logs every 30s and on window focus. Run npm run ingest:watch for instant updates."
-            >
-              <span className="live-dot" aria-hidden="true" />
-              Live
-            </span>
+            {isSample ? (
+              <span
+                className="demo-badge"
+                title="Anonymized sample data. Run the dashboard locally with npm run ingest to see your own usage."
+              >
+                Demo data
+              </span>
+            ) : (
+              <span
+                className="live-badge"
+                title="Auto-refreshes from your local logs every 30s and on window focus. Run npm run ingest:watch for instant updates."
+              >
+                <span className="live-dot" aria-hidden="true" />
+                Live
+              </span>
+            )}
             <span className="updated-inline" title={`Generated ${payload.generatedAt}`}>
               Updated {formatDateLabel(payload.generatedAt.slice(0, 10))} · {freshness.label}
             </span>
@@ -568,10 +580,14 @@ const Header = ({
       </div>
       <div className="data-lineage" role="note">
         <DatabaseZap />
-        <span>
-          Ingested from your local <code>~/.claude/projects</code> + <code>~/.codex/sessions</code> logs, refreshed live.
-          {' '}Read-only — nothing leaves your machine.
-        </span>
+        {isSample ? (
+          <span>Sample data — run locally to see your own usage.</span>
+        ) : (
+          <span>
+            Ingested from your local <code>~/.claude/projects</code> + <code>~/.codex/sessions</code> logs, refreshed live.
+            {' '}Read-only — nothing leaves your machine.
+          </span>
+        )}
       </div>
     </header>
   );
@@ -955,7 +971,7 @@ const PlanView = ({
                         <CheckCircle2 /> From receipts
                       </span>
                     ) : (
-                      <span className="plan-source-pill from-default" title="No receipts found. Showing fallback values — connect Gmail in Settings.">
+                      <span className="plan-source-pill from-default" title="No receipts found. Showing fallback values — run npm run ingest:invoices.">
                         <Info /> Default
                       </span>
                     )}
@@ -1202,7 +1218,7 @@ const InvoicesStrip = ({
           <div>
             <strong>No invoices yet.</strong>
             <p>
-              Run <code>npm run ingest:invoices</code> after exporting your billing history, or connect Gmail in Settings → Connectors. Until then, plan tiles show fallback defaults.
+              Export your billing history (CSV, Gmail mbox or saved HTML receipts) and run <code>npm run ingest:invoices</code>. See Settings → Data Sources. Until then, plan tiles show fallback defaults.
             </p>
           </div>
         </div>
@@ -1991,6 +2007,7 @@ const SettingsModal = ({
   activeCategory,
   activeModel,
   activeProvider,
+  invoiceCount,
   onClose,
   onSettingsChange,
   open,
@@ -2000,6 +2017,7 @@ const SettingsModal = ({
   activeCategory: TaskCategory | 'all';
   activeModel: string;
   activeProvider: Provider | 'all';
+  invoiceCount: number;
   onClose: () => void;
   onSettingsChange: (updater: SettingsUpdater) => void;
   open: boolean;
@@ -2111,7 +2129,7 @@ const SettingsModal = ({
             <ModelsSection onSettingsChange={onSettingsChange} settings={settings} />
           )}
           {activeSection === 'data' && (
-            <DataSourcesSection payload={payload} />
+            <DataSourcesSection invoiceCount={invoiceCount} payload={payload} />
           )}
           {activeSection === 'table' && (
             <TableSection onSettingsChange={onSettingsChange} settings={settings} />
@@ -2604,12 +2622,18 @@ const ModelsSection = ({
   </Section>
 );
 
-const DataSourcesSection = ({ payload }: { payload: UsagePayload }) => {
+const DataSourcesSection = ({ invoiceCount, payload }: { invoiceCount: number; payload: UsagePayload }) => {
   const ingestedAt = formatDateLabel(payload.generatedAt.slice(0, 10));
   return (
     <Section
       title="Data Sources"
-      help={<>Where the dashboard reads from. All sources are local files on this machine. Re-ingest commands run in your terminal.</>}
+      help={
+        <>
+          Where the dashboard reads from. All sources are local files on this machine. To reload data, run the
+          command in your terminal: usage refreshes on its own, the rest after a page reload. No credentials are
+          ever entered here.
+        </>
+      }
     >
       <div className="settings-group">
         {payload.sources.map((source) => (
@@ -2640,6 +2664,17 @@ const DataSourcesSection = ({ payload }: { payload: UsagePayload }) => {
           </div>
           <span className="settings-mono settings-help-inline">sample data in use</span>
           <DocLink anchor="workstreams-json">Docs: workstreams</DocLink>
+        </div>
+        <div className="data-source-row">
+          <span className={`source-status ${invoiceCount > 0 ? 'ok' : 'warn'}`} />
+          <div>
+            <strong>Billing receipts</strong>
+            <code className="settings-mono">public/data/invoices.json</code>
+          </div>
+          <span className="settings-mono settings-help-inline">
+            {invoiceCount > 0 ? `${invoiceCount} receipts` : 'none yet · plan defaults in use'}
+          </span>
+          <code className="settings-mono">npm run ingest:invoices -- --csv &lt;path&gt;</code>
         </div>
       </div>
     </Section>

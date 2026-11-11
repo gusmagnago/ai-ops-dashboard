@@ -1,4 +1,4 @@
-import type { ConnectorState, FinanceEntry, InvoicesPayload, PlanBudget, PrebuiltPlan, UsagePayload, Workstream } from './types';
+import type { FinanceEntry, InvoicesPayload, PlanBudget, PrebuiltPlan, UsagePayload, Workstream } from './types';
 
 export const prebuiltPlans: PrebuiltPlan[] = [
   {
@@ -123,21 +123,70 @@ const fallbackWorkstreams: Workstream[] = [
 
 export const workstreams: Workstream[] = fallbackWorkstreams;
 
+// Static servers (e.g. `vite preview`, SPA rewrites on hosts) can answer a
+// missing file with 200 + index.html. Only treat a response as data when the
+// server says it is JSON, so the loader falls through to the next candidate.
+const isJsonResponse = (response: Response): boolean =>
+  (response.headers.get('content-type') ?? '').toLowerCase().includes('application/json');
+
 const fetchPayload = async (path: string): Promise<UsagePayload | null> => {
   const response = await fetch(path, { cache: 'no-store' });
-  if (!response.ok) return null;
+  if (!response.ok || !isJsonResponse(response)) return null;
   return (await response.json()) as UsagePayload;
 };
 
+const DAY_MS = 86_400_000;
+
+// Local calendar date as YYYY-MM-DD, matching how users read "today".
+const toLocalIsoDate = (date: Date): string =>
+  [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
+
+const addDays = (isoDate: string, days: number): string =>
+  new Date(Date.parse(`${isoDate}T00:00:00Z`) + days * DAY_MS).toISOString().slice(0, 10);
+
+/**
+ * Moves every session date (and generatedAt) by the same whole-day offset so
+ * the latest session falls on `today`. Relative spacing is preserved. Applied
+ * only to sample payloads so the demo never looks months stale; the JSON on
+ * disk is untouched.
+ */
+export const shiftSampleDates = (payload: UsagePayload, today: Date = new Date()): UsagePayload => {
+  const latest = payload.sessions.reduce<string | null>(
+    (max, session) => (max === null || session.date > max ? session.date : max),
+    null
+  );
+  if (latest === null) return payload;
+
+  const offsetDays = Math.round(
+    (Date.parse(`${toLocalIsoDate(today)}T00:00:00Z`) - Date.parse(`${latest}T00:00:00Z`)) / DAY_MS
+  );
+  if (offsetDays === 0) return payload;
+
+  // Shift generatedAt too, but never into the future ("Updated in 3 days").
+  const generatedAtMs = Date.parse(payload.generatedAt);
+  return {
+    ...payload,
+    generatedAt: Number.isNaN(generatedAtMs)
+      ? payload.generatedAt
+      : new Date(Math.min(generatedAtMs + offsetDays * DAY_MS, today.getTime())).toISOString(),
+    sessions: payload.sessions.map((session) => ({ ...session, date: addDays(session.date, offsetDays) })),
+  };
+};
+
+const asSample = (payload: UsagePayload): UsagePayload => ({
+  ...shiftSampleDates(payload),
+  origin: 'sample',
+});
+
+export const isSamplePayload = (payload: UsagePayload): boolean => payload.origin === 'sample';
+
 export const loadUsagePayload = async (): Promise<UsagePayload> => {
   try {
-    return (
-      (await fetchPayload('/data/usage.json')) ??
-      (await fetchPayload('/data/sample-usage.json')) ??
-      fallbackPayload
-    );
+    const local = await fetchPayload('/data/usage.json');
+    if (local) return { ...local, origin: 'local' };
+    return asSample((await fetchPayload('/data/sample-usage.json')) ?? fallbackPayload);
   } catch {
-    return fallbackPayload;
+    return asSample(fallbackPayload);
   }
 };
 
@@ -148,7 +197,7 @@ export const refreshUsagePayload = async (): Promise<UsagePayload | null> => {
   try {
     const payload = await fetchPayload('/data/usage.json');
     if (!payload || !Array.isArray(payload.sessions)) return null;
-    return payload;
+    return { ...payload, origin: 'local' };
   } catch {
     return null;
   }
@@ -195,37 +244,6 @@ export const loadInvoicesPayload = async (): Promise<InvoicesPayload> => {
     return emptyInvoicesPayload;
   }
 };
-
-export const defaultConnectors: ConnectorState[] = [
-  {
-    id: 'gmail',
-    enabled: false,
-    notes: 'Pull billing receipts from Anthropic and OpenAI. Run npm run ingest:invoices.',
-    config: {
-      anthropicSender: 'invoice+statements@mail.anthropic.com',
-      openaiSender: 'noreply@tm.openai.com',
-    },
-  },
-  {
-    id: 'drive',
-    enabled: false,
-    notes: 'Upload exported reports to a shared Drive folder for the team.',
-    config: {
-      folderId: '',
-      shareWith: '',
-    },
-  },
-  {
-    id: 'resend',
-    enabled: false,
-    notes: 'Email the weekly report automatically. Requires RESEND_API_KEY env var.',
-    config: {
-      apiKeyEnvVar: 'RESEND_API_KEY',
-      defaultTo: '',
-      defaultFrom: '',
-    },
-  },
-];
 
 const isWorkstream = (value: unknown): value is Workstream =>
   !!value &&

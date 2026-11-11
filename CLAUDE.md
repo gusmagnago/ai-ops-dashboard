@@ -28,6 +28,8 @@ npm run sync:check                      # CI-friendly: exit 1 if any target is s
 npm run ingest                          # refresh usage aggregates from local logs
 npm run ingest:watch                    # re-ingest on log changes; app live-refreshes (poll + focus)
 npm run ingest:finance <path-to-csv>    # import a finance CSV
+npm run ingest:invoices -- --csv <path> # import billing receipts (CSV, --mbox or --html)
+npm run sample:generate                 # regenerate public/data/sample-usage.json (seeded, deterministic)
 npm run dev                             # vite on :5197
 npm run test                            # vitest
 npm run lint                            # eslint, zero warnings
@@ -46,11 +48,13 @@ npm run build                           # tsc + vite build
 - `src/data.ts` — default budgets, sample loaders for finance/workstreams/usage.
 - `scripts/ingest-usage.mjs` — local Claude/Codex aggregate ingestion.
 - `scripts/ingest-finance.mjs` — finance CSV → JSON ingest.
+- `scripts/generate-sample-usage.mjs` — seeded generator for the year of synthetic demo usage.
 - `scripts/setup.mjs` — onboarding wizard; writes `ai-ops.config.json` (gitignored).
 - `scripts/sync-context.mjs` — indexes vault `ai-context` notes into managed `<!-- ai-ops:context -->` blocks ("Claude teaches Codex").
 - `scripts/lib/context-config.mjs` — shared config loader (config file → env → defaults).
 - `ai-ops.config.example.json` — template for the local config.
 - `README.md` — public-facing guide.
+- `CHANGELOG.md` — release notes. Bump `package.json` version + add a section, then run the Release workflow on `main`.
 
 ## Design Direction
 

@@ -2473,6 +2473,19 @@ textarea {
   white-space: nowrap;
 }
 
+/* Neutral counterpart to .live-badge for sample/demo payloads. */
+.demo-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--muted) 14%, transparent);
+  padding: 6px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
 .live-dot {
   width: 7px;
   height: 7px;

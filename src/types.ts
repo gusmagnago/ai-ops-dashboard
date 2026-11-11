@@ -125,6 +125,10 @@ export type ProviderPlanStatus = {
 
 export type UsagePayload = {
   generatedAt: string;
+  // Which file the payload came from. Set by the loader at runtime, never
+  // written to disk: 'local' = usage.json from npm run ingest, 'sample' =
+  // sample-usage.json or the built-in fallback.
+  origin?: 'local' | 'sample';
   limits?: {
     claude?: ProviderPlanStatus;
     codex?: ProviderPlanStatus;
@@ -210,17 +214,6 @@ export type InvoicesPayload = {
     label: string;
     lastSync?: string;
   }>;
-};
-
-export type ConnectorId = 'gmail' | 'drive' | 'resend';
-
-export type ConnectorState = {
-  id: ConnectorId;
-  enabled: boolean;
-  account?: string;
-  notes?: string;
-  lastSync?: string;
-  config: Record<string, string>;
 };
 
 export type FinanceEntry = {
