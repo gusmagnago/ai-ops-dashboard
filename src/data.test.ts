@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { loadUsagePayload } from './data';
+import { isSamplePayload, loadUsagePayload } from './data';
 import type { UsagePayload } from './types';
 
 const makePayload = (sourceNote: string): UsagePayload => ({
@@ -77,5 +77,29 @@ describe('loadUsagePayload', () => {
     const payload = await loadUsagePayload();
 
     expect(payload.sessions.length).toBeGreaterThan(0);
+  });
+});
+
+describe('payload origin', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('marks usage.json as local', async () => {
+    stubFetch({ '/data/usage.json': () => jsonResponse(makePayload('local')) });
+
+    expect(isSamplePayload(await loadUsagePayload())).toBe(false);
+  });
+
+  it('marks sample-usage.json as sample', async () => {
+    stubFetch({ '/data/sample-usage.json': () => jsonResponse(makePayload('sample')) });
+
+    expect(isSamplePayload(await loadUsagePayload())).toBe(true);
+  });
+
+  it('marks the built-in fallback as sample', async () => {
+    stubFetch({});
+
+    expect(isSamplePayload(await loadUsagePayload())).toBe(true);
   });
 });

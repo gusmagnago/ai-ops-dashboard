@@ -135,15 +135,17 @@ const fetchPayload = async (path: string): Promise<UsagePayload | null> => {
   return (await response.json()) as UsagePayload;
 };
 
+const asSample = (payload: UsagePayload): UsagePayload => ({ ...payload, origin: 'sample' });
+
+export const isSamplePayload = (payload: UsagePayload): boolean => payload.origin === 'sample';
+
 export const loadUsagePayload = async (): Promise<UsagePayload> => {
   try {
-    return (
-      (await fetchPayload('/data/usage.json')) ??
-      (await fetchPayload('/data/sample-usage.json')) ??
-      fallbackPayload
-    );
+    const local = await fetchPayload('/data/usage.json');
+    if (local) return { ...local, origin: 'local' };
+    return asSample((await fetchPayload('/data/sample-usage.json')) ?? fallbackPayload);
   } catch {
-    return fallbackPayload;
+    return asSample(fallbackPayload);
   }
 };
 
@@ -154,7 +156,7 @@ export const refreshUsagePayload = async (): Promise<UsagePayload | null> => {
   try {
     const payload = await fetchPayload('/data/usage.json');
     if (!payload || !Array.isArray(payload.sessions)) return null;
-    return payload;
+    return { ...payload, origin: 'local' };
   } catch {
     return null;
   }

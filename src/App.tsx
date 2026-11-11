@@ -83,6 +83,7 @@ import {
   loadUsagePayload,
   loadWorkstreams,
   prebuiltPlans,
+  isSamplePayload,
   refreshUsagePayload,
   workstreams as defaultWorkstreams,
 } from './data';
@@ -493,6 +494,7 @@ const Header = ({
   const freshness = describeFreshness(payload.generatedAt);
   const codexPrimary = payload.limits?.codex?.windows.find((window) => window.id === 'primary');
   const codexWeekly = payload.limits?.codex?.windows.find((window) => window.id === 'secondary');
+  const isSample = isSamplePayload(payload);
 
   return (
     <header className="top-header">
@@ -500,13 +502,22 @@ const Header = ({
         <div className="header-lead-top">
           <span className="eyebrow">AI Ops · Daily</span>
           <div className="header-status">
-            <span
-              className="live-badge"
-              title="Auto-refreshes from your local logs every 30s and on window focus. Run npm run ingest:watch for instant updates."
-            >
-              <span className="live-dot" aria-hidden="true" />
-              Live
-            </span>
+            {isSample ? (
+              <span
+                className="demo-badge"
+                title="Anonymized sample data. Run the dashboard locally with npm run ingest to see your own usage."
+              >
+                Demo data
+              </span>
+            ) : (
+              <span
+                className="live-badge"
+                title="Auto-refreshes from your local logs every 30s and on window focus. Run npm run ingest:watch for instant updates."
+              >
+                <span className="live-dot" aria-hidden="true" />
+                Live
+              </span>
+            )}
             <span className="updated-inline" title={`Generated ${payload.generatedAt}`}>
               Updated {formatDateLabel(payload.generatedAt.slice(0, 10))} · {freshness.label}
             </span>
@@ -568,10 +579,14 @@ const Header = ({
       </div>
       <div className="data-lineage" role="note">
         <DatabaseZap />
-        <span>
-          Ingested from your local <code>~/.claude/projects</code> + <code>~/.codex/sessions</code> logs, refreshed live.
-          {' '}Read-only — nothing leaves your machine.
-        </span>
+        {isSample ? (
+          <span>Sample data — run locally to see your own usage.</span>
+        ) : (
+          <span>
+            Ingested from your local <code>~/.claude/projects</code> + <code>~/.codex/sessions</code> logs, refreshed live.
+            {' '}Read-only — nothing leaves your machine.
+          </span>
+        )}
       </div>
     </header>
   );

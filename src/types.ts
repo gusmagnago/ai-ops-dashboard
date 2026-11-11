@@ -125,6 +125,10 @@ export type ProviderPlanStatus = {
 
 export type UsagePayload = {
   generatedAt: string;
+  // Which file the payload came from. Set by the loader at runtime, never
+  // written to disk: 'local' = usage.json from npm run ingest, 'sample' =
+  // sample-usage.json or the built-in fallback.
+  origin?: 'local' | 'sample';
   limits?: {
     claude?: ProviderPlanStatus;
     codex?: ProviderPlanStatus;
