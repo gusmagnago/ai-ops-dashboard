@@ -1,7 +1,7 @@
 {
   "name": "ai-ops-dashboard",
   "private": false,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "description": "Local React/Vite console for tracking Claude Code vs Codex usage, plan pressure, routing decisions, productivity, and personal finance baselines. No backend, no telemetry.",
   "license": "MIT",

@@ -54,6 +54,7 @@ npm run build                           # tsc + vite build
 - `scripts/lib/context-config.mjs` — shared config loader (config file → env → defaults).
 - `ai-ops.config.example.json` — template for the local config.
 - `README.md` — public-facing guide.
+- `CHANGELOG.md` — release notes. Bump `package.json` version + add a section, then run the Release workflow on `main`.
 
 ## Design Direction
 
