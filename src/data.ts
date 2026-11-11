@@ -135,7 +135,48 @@ const fetchPayload = async (path: string): Promise<UsagePayload | null> => {
   return (await response.json()) as UsagePayload;
 };
 
-const asSample = (payload: UsagePayload): UsagePayload => ({ ...payload, origin: 'sample' });
+const DAY_MS = 86_400_000;
+
+// Local calendar date as YYYY-MM-DD, matching how users read "today".
+const toLocalIsoDate = (date: Date): string =>
+  [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
+
+const addDays = (isoDate: string, days: number): string =>
+  new Date(Date.parse(`${isoDate}T00:00:00Z`) + days * DAY_MS).toISOString().slice(0, 10);
+
+/**
+ * Moves every session date (and generatedAt) by the same whole-day offset so
+ * the latest session falls on `today`. Relative spacing is preserved. Applied
+ * only to sample payloads so the demo never looks months stale; the JSON on
+ * disk is untouched.
+ */
+export const shiftSampleDates = (payload: UsagePayload, today: Date = new Date()): UsagePayload => {
+  const latest = payload.sessions.reduce<string | null>(
+    (max, session) => (max === null || session.date > max ? session.date : max),
+    null
+  );
+  if (latest === null) return payload;
+
+  const offsetDays = Math.round(
+    (Date.parse(`${toLocalIsoDate(today)}T00:00:00Z`) - Date.parse(`${latest}T00:00:00Z`)) / DAY_MS
+  );
+  if (offsetDays === 0) return payload;
+
+  // Shift generatedAt too, but never into the future ("Updated in 3 days").
+  const generatedAtMs = Date.parse(payload.generatedAt);
+  return {
+    ...payload,
+    generatedAt: Number.isNaN(generatedAtMs)
+      ? payload.generatedAt
+      : new Date(Math.min(generatedAtMs + offsetDays * DAY_MS, today.getTime())).toISOString(),
+    sessions: payload.sessions.map((session) => ({ ...session, date: addDays(session.date, offsetDays) })),
+  };
+};
+
+const asSample = (payload: UsagePayload): UsagePayload => ({
+  ...shiftSampleDates(payload),
+  origin: 'sample',
+});
 
 export const isSamplePayload = (payload: UsagePayload): boolean => payload.origin === 'sample';
 

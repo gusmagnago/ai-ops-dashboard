@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { isSamplePayload, loadUsagePayload } from './data';
+import { isSamplePayload, loadUsagePayload, shiftSampleDates } from './data';
 import type { UsagePayload } from './types';
 
 const makePayload = (sourceNote: string): UsagePayload => ({
@@ -101,5 +101,68 @@ describe('payload origin', () => {
     stubFetch({});
 
     expect(isSamplePayload(await loadUsagePayload())).toBe(true);
+  });
+});
+
+const session = (date: string): UsagePayload['sessions'][number] => ({
+  cacheCreationInputTokens: 0,
+  cachedInputTokens: 0,
+  costUsd: 0,
+  date,
+  inputTokens: 0,
+  interactions: 1,
+  model: 'example-model',
+  outputTokens: 0,
+  provider: 'Claude',
+  totalTokens: 0,
+  workspace: 'example/app',
+});
+
+describe('shiftSampleDates', () => {
+  const today = new Date(2026, 10, 11); // 2026-11-11, local time
+
+  it('moves the latest date to today and keeps relative spacing', () => {
+    const payload = {
+      ...makePayload('sample'),
+      sessions: [session('2026-05-21'), session('2026-05-25'), session('2026-05-24')],
+    };
+
+    const shifted = shiftSampleDates(payload, today);
+
+    expect(shifted.sessions.map((s) => s.date)).toEqual(['2026-11-07', '2026-11-11', '2026-11-10']);
+    // Sample generatedAt is 3 days after its last session; it is capped at now.
+    expect(Date.parse(shifted.generatedAt)).toBeLessThanOrEqual(today.getTime());
+  });
+
+  it('does not mutate the input payload', () => {
+    const payload = { ...makePayload('sample'), sessions: [session('2026-05-25')] };
+
+    shiftSampleDates(payload, today);
+
+    expect(payload.sessions[0].date).toBe('2026-05-25');
+  });
+
+  it('returns empty payloads unchanged', () => {
+    const payload = makePayload('sample');
+
+    expect(shiftSampleDates(payload, today)).toBe(payload);
+  });
+});
+
+describe('loadUsagePayload date handling', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it('shifts sample data to today but leaves local data as-is', async () => {
+    vi.useFakeTimers({ now: new Date(2026, 10, 11, 12) });
+    const withSessions = (note: string) => ({ ...makePayload(note), sessions: [session('2026-05-25')] });
+
+    stubFetch({ '/data/sample-usage.json': () => jsonResponse(withSessions('sample')) });
+    expect((await loadUsagePayload()).sessions[0].date).toBe('2026-11-11');
+
+    stubFetch({ '/data/usage.json': () => jsonResponse(withSessions('local')) });
+    expect((await loadUsagePayload()).sessions[0].date).toBe('2026-05-25');
   });
 });
