@@ -28,6 +28,7 @@ npm run sync:check                      # CI-friendly: exit 1 if any target is s
 npm run ingest                          # refresh usage aggregates from local logs
 npm run ingest:watch                    # re-ingest on log changes; app live-refreshes (poll + focus)
 npm run ingest:finance <path-to-csv>    # import a finance CSV
+npm run ingest:invoices -- --csv <path> # import billing receipts (CSV, --mbox or --html)
 npm run sample:generate                 # regenerate public/data/sample-usage.json (seeded, deterministic)
 npm run dev                             # vite on :5197
 npm run test                            # vitest

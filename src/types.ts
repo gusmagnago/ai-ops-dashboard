@@ -216,17 +216,6 @@ export type InvoicesPayload = {
   }>;
 };
 
-export type ConnectorId = 'gmail' | 'drive' | 'resend';
-
-export type ConnectorState = {
-  id: ConnectorId;
-  enabled: boolean;
-  account?: string;
-  notes?: string;
-  lastSync?: string;
-  config: Record<string, string>;
-};
-
 export type FinanceEntry = {
   actualEur: number;
   budgetEur: number;

@@ -1,4 +1,4 @@
-import type { ConnectorState, FinanceEntry, InvoicesPayload, PlanBudget, PrebuiltPlan, UsagePayload, Workstream } from './types';
+import type { FinanceEntry, InvoicesPayload, PlanBudget, PrebuiltPlan, UsagePayload, Workstream } from './types';
 
 export const prebuiltPlans: PrebuiltPlan[] = [
   {
@@ -244,37 +244,6 @@ export const loadInvoicesPayload = async (): Promise<InvoicesPayload> => {
     return emptyInvoicesPayload;
   }
 };
-
-export const defaultConnectors: ConnectorState[] = [
-  {
-    id: 'gmail',
-    enabled: false,
-    notes: 'Pull billing receipts from Anthropic and OpenAI. Run npm run ingest:invoices.',
-    config: {
-      anthropicSender: 'invoice+statements@mail.anthropic.com',
-      openaiSender: 'noreply@tm.openai.com',
-    },
-  },
-  {
-    id: 'drive',
-    enabled: false,
-    notes: 'Upload exported reports to a shared Drive folder for the team.',
-    config: {
-      folderId: '',
-      shareWith: '',
-    },
-  },
-  {
-    id: 'resend',
-    enabled: false,
-    notes: 'Email the weekly report automatically. Requires RESEND_API_KEY env var.',
-    config: {
-      apiKeyEnvVar: 'RESEND_API_KEY',
-      defaultTo: '',
-      defaultFrom: '',
-    },
-  },
-];
 
 const isWorkstream = (value: unknown): value is Workstream =>
   !!value &&
