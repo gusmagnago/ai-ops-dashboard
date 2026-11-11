@@ -123,9 +123,15 @@ const fallbackWorkstreams: Workstream[] = [
 
 export const workstreams: Workstream[] = fallbackWorkstreams;
 
+// Static servers (e.g. `vite preview`, SPA rewrites on hosts) can answer a
+// missing file with 200 + index.html. Only treat a response as data when the
+// server says it is JSON, so the loader falls through to the next candidate.
+const isJsonResponse = (response: Response): boolean =>
+  (response.headers.get('content-type') ?? '').toLowerCase().includes('application/json');
+
 const fetchPayload = async (path: string): Promise<UsagePayload | null> => {
   const response = await fetch(path, { cache: 'no-store' });
-  if (!response.ok) return null;
+  if (!response.ok || !isJsonResponse(response)) return null;
   return (await response.json()) as UsagePayload;
 };
 
